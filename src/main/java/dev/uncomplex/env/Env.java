@@ -1,8 +1,10 @@
+/*
+ * @author James Thorpe <james@uncomplex.dev>
+ */
 package dev.uncomplex.env;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -11,13 +13,25 @@ import java.util.Map;
 /***
  * Env variable
  * 
- * VAR              ::= NAME ws '=' ws ( QUOTED_STRING | STRING ) (EOL | EOF)
- * NAME             ::= [a..zA..Z_]+[a..zA..Z0..9_]*
- * QUOTED_STRING    ::= '"' (QUOTED_CHAR | ESCAPE)* '"'
- * QUOTED_CHAR      ::= 0x20..0x10FFFF - '\' - '"'
- * ESCAPE           ::= '\' (
+ * var              = name WSP '=' WSP (quoted_string / string) WSP (eol / eof)
+ * name             = 1*(ALPHA / "_") *(ALPHA / DIGIT / "_")
+ * string           = *%x20-10FFFF
+ * quoted_string    = DQUOTE *(quoted_char / escape / expansion) DQUOTE
+ * quoted_char      = %x20-21 / %x23-5B / %x5D-7A / %x7C-10FFFF                 ; unicode >= SP - ["\{]
+ * escape           = %x22 / ; "
+ *                    "\" /
+ *                    "/" /
+ *                    "{" /
+ *                    "b" /
+ *                    "f" /
+ *                    "n" /
+ *                    "r" /
+ *                    "t" /
+ *                    "u" 4HEXDIG
+ * expansion        = "{" name "}"
+ * eof              = 0xFFFFFFFF
+ * eol              = *CR.LF
  * 
- * @author James Thorpe <james@uncomplex.dev>
  */
 public class Env {
 
