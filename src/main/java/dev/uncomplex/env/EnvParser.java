@@ -167,7 +167,7 @@ public class EnvParser {
     private String readQuotedString() throws IOException, ParseException {
         StringBuilder sb = new StringBuilder();
         while (!consume('"')) {
-            if (isEol() || c == -1) {
+            if (c == -1) {
                 throw error("quoted value missing closing '\"'", (Object[])null);
             }
             if (consume('\\')) {

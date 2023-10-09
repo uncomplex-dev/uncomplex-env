@@ -1,6 +1,5 @@
 package dev.uncomplex.env;
 
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -10,14 +9,13 @@ import org.junit.jupiter.api.Test;
 
 class EnvParserTest {
 
-    
     @Test
-    public void debug() {
+    public void debug() throws IOException, ParseException {
         test("key_=\"va\r\nlue\"", "value");
     }
 
     @Test
-    public void testStrings() {
+    public void testStrings() throws IOException, ParseException {
         test("key_=\"\"", "");
         test("key_=\"test\"", "test");
         test("key_=\"a\\\"b\\\"\"", "a\"b\"");
@@ -36,32 +34,49 @@ class EnvParserTest {
         System.out.println(e);
     }
 
-    
     @Test
-    public void testGrammar() {
+    public void testGrammar() throws IOException, ParseException {
+        test("", null);
         test("key_=", "");
         test("key_=value", "value");
         test("key_=\"\"", "");
         test("key_=\"value\"", "value");
+        // single key multiline value
         test("key_=\"va\r\nlue\"", "value");
+        // multiple keys
+        test("key_=\"value\"\nkey2_=\"value2\"", "value");
+        test("key_=\"value\"\nkey2_=\"value2\"", "key2_", "value2");
     }
+
     
     
+    @Test
+    public void testEnvVars() throws IOException, ParseException {
+        /* 
+        please note that this test requires the environment variable
+        UNIT_TEST_ be defined prior to running the test.  This can be
+        done in your IDE or the maven pom file (or both).
+        */
+        var r = new StringReader("");
+        var e = new Env(r);
+        assertEquals("", e.get("UNIT_TEST_X", ""));
+        assertEquals("testvalue", e.get("UNIT_TEST_", ""));
+    }
+
     void testThrows(String input) throws IOException, ParseException {
-            var r = new StringReader(input);
-            new Env(r);
+        var r = new StringReader(input);
+        new Env(r);
     }
-    
-    
-    void test(String input, String result) {
-        try {
-            var r = new StringReader(input);
-            var e = new Env(r);
-            var v = e.get("key_");
-            assertEquals(result, v);
-        } catch (IOException | ParseException e) {
-            fail(e.getMessage());
-        }
+
+    void test(String input, String value) throws IOException, ParseException {
+        test(input, "key_", value);
+    }
+
+    void test(String input, String key, String value) throws IOException, ParseException {
+        var r = new StringReader(input);
+        var e = new Env(r);
+        var v = e.get(key);
+        assertEquals(value, v);
     }
 
 }
