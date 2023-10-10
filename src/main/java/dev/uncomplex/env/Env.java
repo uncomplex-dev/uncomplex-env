@@ -3,6 +3,9 @@
  */
 package dev.uncomplex.env;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -13,8 +16,19 @@ import java.util.Map;
 public class Env {
 
     private static final List<String> TRUE = List.of("Y", "YES", "T", "TRUE", "1");
-    private final Map<String, String> values;
+    private Map<String, String> values;
 
+    public Env() throws IOException, ParseException {
+        this(new File(".env"));
+    }
+    
+    public Env(File f) throws IOException, ParseException {
+        try( var r = new FileReader(f)) {
+            var reader = new BufferedReader(r);
+            this.values = EnvParser.parse(reader);
+        }
+    }
+    
     public Env(Reader r) throws IOException, ParseException {
         this.values = EnvParser.parse(r);
     }
