@@ -23,6 +23,7 @@ public class Env {
     }
     
     public Env(File f) throws IOException, ParseException {
+        f = f.getAbsoluteFile();
         try( var r = new FileReader(f)) {
             var reader = new BufferedReader(r);
             this.values = EnvParser.parse(reader);
