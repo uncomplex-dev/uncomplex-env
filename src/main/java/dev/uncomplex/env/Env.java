@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +25,13 @@ public class Env {
     
     public Env(File f) throws IOException, ParseException {
         f = f.getAbsoluteFile();
-        try( var r = new FileReader(f)) {
-            var reader = new BufferedReader(r);
-            this.values = EnvParser.parse(reader);
+        if (f.exists()) {
+            try (var r = new FileReader(f)) {
+                var reader = new BufferedReader(r);
+                this.values = EnvParser.parse(reader);
+            }
+        } else {
+            this.values = new HashMap<>();
         }
     }
     

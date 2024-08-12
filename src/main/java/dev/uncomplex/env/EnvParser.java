@@ -40,16 +40,16 @@ public class EnvParser {
     private final Reader r;
     private final Map<String, String> values = new HashMap<>();
 
-    public static Map<String,String> parse(Reader r) throws IOException, ParseException {
+    public static Map<String, String> parse(Reader r) throws IOException, ParseException {
         var e = new EnvParser(r);
         return e.values;
     }
-    
+
     private EnvParser(Reader r) throws IOException, ParseException {
         this.r = r;
         readFile();
     }
-     
+
     private void checkEof() throws ParseException {
         if (c == -1) {
             throw error("Unexpected end of input");
@@ -84,7 +84,7 @@ public class EnvParser {
     private boolean isWs() {
         return c == 0x20 || c == 0x09;
     }
-    
+
     private boolean isNameChar() {
         return Character.isLetterOrDigit(c) || c == '_';
     }
@@ -104,8 +104,9 @@ public class EnvParser {
      */
     private void readChar() throws IOException {
         c = r.read();
-        if (c == 0x0A) 
-        ++pos;
+        if (c == 0x0A) {
+            ++pos;
+        }
     }
 
     private void readFile() throws IOException, ParseException {
@@ -156,33 +157,28 @@ public class EnvParser {
             throw error("expected end-of-line but '%c' found", c);
         } else {
             var sb = new StringBuilder();
-            while(!isEol() && c != -1) {
+            while (!isEol() && c != -1) {
                 sb.appendCodePoint(c);
                 readChar();
             }
             return sb.toString();
         }
     }
-    
+
     private String readQuotedString() throws IOException, ParseException {
         StringBuilder sb = new StringBuilder();
         while (!consume('"')) {
             if (c == -1) {
-                throw error("quoted value missing closing '\"'", (Object[])null);
+                throw error("quoted value missing closing '\"'", (Object[]) null);
             }
             if (consume('\\')) {
                 int ch;
                 switch (c) {
-                    case 'n' ->
-                        ch = '\n';
-                    case 'r' ->
-                        ch = '\r';
-                    case 't' ->
-                        ch = '\t';
-                    case 'f' ->
-                        ch = '\f';
-                    case 'b' ->
-                        ch = '\b';
+                    case 'n' -> ch = '\n';
+                    case 'r' -> ch = '\r';
+                    case 't' -> ch = '\t';
+                    case 'f' -> ch = '\f';
+                    case 'b' -> ch = '\b';
                     case 'u' -> {
                         readChar();
                         ch = (readHexDigit() << 12)
@@ -190,8 +186,7 @@ public class EnvParser {
                                 + (readHexDigit() << 4)
                                 + (readHexDigit());
                     }
-                    default ->
-                        ch = c;
+                    default -> ch = c;
                 }
                 sb.appendCodePoint(ch);
             } else if (!isEol()) {
